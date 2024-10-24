@@ -1,0 +1,72 @@
+---
+
+## Init
+
+- name: Ensure project directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ docker_project_path }}"
+  tags: ["init"]
+
+- name: Ensure data directory exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0700'
+    owner: "999"
+    group: "{{ ansible_user_gid }}"
+  loop:
+    - "{{ docker_project_path }}/data"
+  become: true
+  tags: ["init"]
+
+- name: Ensure init directory exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0770'
+    owner: "999"
+    group: "{{ ansible_user_gid }}"
+  loop:
+    - "{{ docker_project_path }}/init"
+  become: true
+  tags: ["init"]
+
+- name: "Check if data directory is initialized: {{ docker_project_path ~ '/data/PG_VERSION' }}"
+  ansible.builtin.stat:
+    path: "{{ docker_project_path }}/data/PG_VERSION"
+  become: true
+  register: pgdata
+  tags: ["init"]
+
+## Configure
+
+- name: Template postgres-passwd
+  ansible.builtin.template:
+    src: postgres-passwd.j2
+    dest: "{{ docker_project_path }}/postgres-passwd"
+    mode: '0600'
+
+- name: Template init script
+  ansible.builtin.template:
+    src: init-databases.sh.j2
+    dest: "{{ docker_project_path }}/init/init-databases.sh"
+    mode: '0755'
+  when: not pgdata.stat.exists
+  notify: Cleanup init script
+
+- name: Template docker-compose.yml
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ docker_project_path }}/docker-compose.yml"
+    mode: '0644'
+    validate: "{{ docker_cli }} compose -f %s config"
+    backup: true
+
+## Run
+
+- name: Start app
+  ansible.builtin.include_role: { name: djuuu.docker_project, tasks_from: compose-up }

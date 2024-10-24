@@ -1,0 +1,6 @@
+---
+
+- name: Cleanup init script
+  ansible.builtin.file:
+    dest: "{{ docker_project_path }}/init/init-databases.sh"
+    state: absent

@@ -1,0 +1,19 @@
+---
+
+# Docker project variables
+
+postgres_project_name: postgres
+
+
+# PostgreSQL project variables
+
+postgres_version: 16
+
+postgres_shm_size: 128mb
+
+postgres_password: P05t6re5
+
+postgres_databases: []
+#  - database: dbname
+#    user:     username
+#    password: us3rp4ssw0rd
