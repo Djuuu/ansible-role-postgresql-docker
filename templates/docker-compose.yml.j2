@@ -7,14 +7,16 @@ name: {{ docker_project_slug }}
 services:
 
   postgres:
-    container_name: {{ docker_project_slug }}
     image: postgres:{{ postgres_version }}
-    restart: unless-stopped
+    container_name: {{ docker_project_slug }}
+    restart: {{ docker_project_restart }}
 
     # set shared memory limit when using docker-compose
     shm_size: {{ postgres_shm_size }}
 
-    {{ docker_project_compose_service_additional_options | indent(4) }}
+    {{ docker_project_service_network_options | indent(4) }}
+
+    {{ docker_project_service_additional_options | indent(4) }}
 
     environment:
       #POSTGRES_PASSWORD:
@@ -32,7 +34,6 @@ services:
       - ./data:/var/lib/postgresql/data
       - ./init:/docker-entrypoint-initdb.d
 
-networks:
-  {{ docker_project_default_network | indent(2) }}
+{{ docker_project_networks }}
 
 {{ docker_project_compose_additional_options }}
