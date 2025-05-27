@@ -44,11 +44,12 @@
 
 ## Configure
 
-- name: Template postgres-passwd
-  ansible.builtin.template:
-    src: postgres-passwd.j2
+- name: Generate postgres-passwd file
+  ansible.builtin.copy:
+    content: "{{ postgres_password }}"
     dest: "{{ docker_project_path }}/postgres-passwd"
     mode: '0600'
+  no_log: true
 
 - name: Template init script
   ansible.builtin.template:
