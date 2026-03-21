@@ -7,7 +7,7 @@ postgres_project_name: postgres
 
 # PostgreSQL project variables
 
-postgres_version: 16
+postgres_version: 18
 
 postgres_shm_size: 128mb
 
